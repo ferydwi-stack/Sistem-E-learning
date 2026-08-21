@@ -21,7 +21,8 @@ export default function AdminDashboardPage() {
   const loadDashboardData = useCallback(async () => {
     setError(null);
     try {
-      const [usersData, coursesData] = await Promise.all([
+      const [statsData, usersData, coursesData] = await Promise.all([
+        api.getAdminStats().catch(() => null),
         api.getUsers().catch(() => []),
         api.getCourses().catch(() => [])
       ]);
@@ -29,7 +30,14 @@ export default function AdminDashboardPage() {
       const usersList = Array.isArray(usersData) ? usersData : ((usersData as any)?.users || []);
       const coursesList = Array.isArray(coursesData) ? coursesData : ((coursesData as any)?.courses || []);
 
-      if (Array.isArray(usersList)) {
+      if (statsData && statsData.total_users !== undefined) {
+        setCounts({
+          totalUsers: statsData.total_users,
+          teachers: statsData.total_teachers,
+          students: statsData.total_students,
+          courses: statsData.total_courses || (Array.isArray(coursesList) ? coursesList.length : 0)
+        });
+      } else if (Array.isArray(usersList) && usersList.length > 0) {
         const teacherCount = usersList.filter((u: any) => u.role === 'guru').length;
         const studentCount = usersList.filter((u: any) => u.role === 'siswa').length;
 
@@ -39,7 +47,9 @@ export default function AdminDashboardPage() {
           students: studentCount,
           courses: Array.isArray(coursesList) ? coursesList.length : 0
         });
+      }
 
+      if (Array.isArray(usersList) && usersList.length > 0) {
         const latest = usersList.slice(0, 4).map((u: any) => ({
           name: u.name,
           email: u.email,
@@ -49,9 +59,9 @@ export default function AdminDashboardPage() {
         }));
         setRecentUsers(latest);
       }
-      return { usersList, coursesList };
+      return { usersList, coursesList, statsData };
     } catch (e: any) {
-      console.error('Failed to load dashboard data from MySQL:', e);
+      console.error('Failed to load dashboard data:', e);
       setError(e.message || 'Gagal memuat data dashboard. Silakan coba lagi.');
       throw e;
     }

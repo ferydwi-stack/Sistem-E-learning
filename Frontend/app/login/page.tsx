@@ -76,10 +76,12 @@ export default function LoginPage() {
         if (clearAllLmsCaches) clearAllLmsCaches();
       } catch (e) {}
       try {
-        // Remove the global standalone key
-        localStorage.removeItem('lms_teacher_profile_data');
-        // Remove all per-user profile keys
-        const keys = Object.keys(localStorage).filter(k => k.startsWith('lms_'));
+        // Remove only profile and temp cache keys (do not delete auth credentials)
+        const keys = Object.keys(localStorage).filter(k => 
+          k.startsWith('lms_cache_') || 
+          k.startsWith('lms_teacher_profile_') ||
+          k === 'lms_teacher_profile_data'
+        );
         keys.forEach(k => localStorage.removeItem(k));
       } catch (e) {}
     }
@@ -91,12 +93,14 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // Clear old profile caches before logging in
+      clearPreviousUserCache();
+
       const { api } = await import('@/lib/api');
       const res = await api.login(email, password);
       const userObj = res.user;
 
       if (typeof window !== 'undefined') {
-        clearPreviousUserCache();
         localStorage.setItem('lms_user', JSON.stringify(userObj));
       }
 
