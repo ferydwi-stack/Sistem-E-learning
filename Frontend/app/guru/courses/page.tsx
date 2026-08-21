@@ -213,7 +213,7 @@ export default function GuruCoursesPage() {
           <div className="col-span-3 bg-white border border-slate-100 rounded-3xl p-8 text-center space-y-3">
             <BookOpen className="w-10 h-10 text-slate-300 mx-auto" />
             <p className="text-sm font-bold text-slate-700">Belum ada kelas yang dibuat oleh {teacherName}</p>
-            <p className="text-xs text-slate-400">Klik tombol "Buat Kelas Baru" di atas untuk menambahkan kelas pembelajaran di MySQL.</p>
+            <p className="text-xs text-slate-400">Klik tombol "Buat Kelas Baru" di atas untuk menambahkan kelas pembelajaran.</p>
           </div>
         )}
       </div>

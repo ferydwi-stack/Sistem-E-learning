@@ -170,7 +170,7 @@ function GuruTugasContent() {
       await loadDataFromApi();
     } catch (err: any) {
       console.error('Create assignment error:', err);
-      alert(err.message || 'Gagal membuat tugas baru di MySQL');
+      alert(err.message || 'Gagal membuat tugas baru');
     }
   };
 

@@ -107,7 +107,7 @@ export default function AdminUserManagementPage() {
     } catch (err: any) {
       const msg = err.message || '';
       if (msg.includes('already been taken') || msg.includes('email')) {
-        setAddUserError('Email sudah terdaftar di database! Harap gunakan email lain.');
+        setAddUserError('Email sudah terdaftar di sistem! Harap gunakan email lain.');
       } else {
         setAddUserError('Gagal menambahkan user: ' + (msg || 'Silakan coba lagi'));
       }
@@ -120,7 +120,7 @@ export default function AdminUserManagementPage() {
   const [isResetting, setIsResetting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // 3. Handler: Update User (Realtime PUT to MySQL)
+  // 3. Handler: Update User
   const handleUpdateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingUser || !editingUser.dbId) return;
@@ -139,13 +139,13 @@ export default function AdminUserManagementPage() {
       setEditingUser(null);
       await loadUsersFromApi();
     } catch (err) {
-      console.error('MySQL Update User Error:', err);
+      console.error('Update User Error:', err);
     } finally {
       setIsUpdating(false);
     }
   };
 
-  // 4. Handler: Reset Password (Realtime PUT to MySQL)
+  // 4. Handler: Reset Password
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!resetPassUser || !newPassword) return;
@@ -156,19 +156,19 @@ export default function AdminUserManagementPage() {
     try {
       const { api } = await import('@/lib/api');
       await api.resetUserPassword(targetDbId, newPassword);
-      setResetSuccessMsg(`Password untuk ${targetName} berhasil diperbarui di Database MySQL!`);
+      setResetSuccessMsg(`Password untuk ${targetName} berhasil diperbarui!`);
       setResetPassUser(null);
       setNewPassword('');
       await loadUsersFromApi();
       setTimeout(() => setResetSuccessMsg(''), 3000);
     } catch (err) {
-      console.error('MySQL Reset Password Error:', err);
+      console.error('Reset Password Error:', err);
     } finally {
       setIsResetting(false);
     }
   };
 
-  // 5. Handler: Delete User (Realtime DELETE to MySQL)
+  // 5. Handler: Delete User
   const handleDelete = (item: any) => {
     setItemToDelete(item);
     setIsDeleteModalOpen(true);
@@ -186,8 +186,8 @@ export default function AdminUserManagementPage() {
       setItemToDelete(null);
       await loadUsersFromApi();
     } catch (e: any) {
-      console.error('MySQL Delete User Error:', e);
-      alert(e.message || 'Gagal menghapus user dari database MySQL.');
+      console.error('Delete User Error:', e);
+      alert(e.message || 'Gagal menghapus akun pengguna.');
     } finally {
       setIsDeleting(false);
     }
@@ -262,7 +262,7 @@ export default function AdminUserManagementPage() {
       await api.bulkImportUsers(usersToImport);
       clearInterval(progressTimer);
       setImportProgress(100);
-      setImportSuccessMsg(`Berhasil mengimpor ${usersToImport.length} akun pengguna ke Database MySQL!`);
+      setImportSuccessMsg(`Berhasil mengimpor ${usersToImport.length} akun pengguna ke sistem!`);
       setSelectedFile(null);
       setParsedImportUsers([]);
       await loadUsersFromApi();
@@ -276,8 +276,8 @@ export default function AdminUserManagementPage() {
       clearInterval(progressTimer);
       setIsImporting(false);
       setImportProgress(0);
-      console.error('MySQL Bulk Import Error:', e);
-      alert(e.message || 'Gagal mengimpor data user massal ke Database MySQL.');
+      console.error('Bulk Import Error:', e);
+      alert(e.message || 'Gagal mengimpor data akun pengguna.');
     }
   };
 
@@ -817,7 +817,7 @@ export default function AdminUserManagementPage() {
               </div>
 
               <div className="p-3 bg-amber-50 rounded-xl text-[11px] text-amber-800 border border-amber-200">
-                ⚠️ Pengguna harus login menggunakan password baru ini setelah disimpan ke MySQL.
+                ⚠️ Pengguna harus login menggunakan password baru ini setelah disimpan.
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 sticky bottom-0 bg-white z-10">
@@ -833,8 +833,14 @@ export default function AdminUserManagementPage() {
                   disabled={isResetting}
                   className="px-6 py-3 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 text-white text-xs font-bold rounded-2xl shadow-lg shadow-amber-500/20 transition flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
                 >
-                  {isResetting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <span>{isResetting ? 'Menyimpan Sandi...' : 'Simpan Password Baru'}</span>
+                  {isResetting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Menyimpan...</span>
+                    </>
+                  ) : (
+                    <span>Simpan Password Baru</span>
+                  )}
                 </button>
               </div>
             </form>
@@ -842,31 +848,40 @@ export default function AdminUserManagementPage() {
         </div>
       )}
 
-      {/* Import Massal CSV/Excel Modal */}
+      {/* 4. MODAL IMPORT EXCEL / CSV */}
       {isImportModalOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between p-6 pb-4 border-b border-slate-100 shrink-0">
+          <div className="bg-white rounded-[28px] max-w-lg w-full p-6 sm:p-8 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#2563EB] flex items-center justify-center">
                   <FileSpreadsheet className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-slate-900">Import Akun Massal</h3>
-                  <p className="text-xs text-slate-400 font-medium">Unggah file (.csv / .xlsx) data siswa & guru</p>
+                  <p className="text-xs text-slate-400 font-medium">Unggah file Excel / CSV data akun pengguna</p>
                 </div>
               </div>
               <button
-                onClick={() => setIsImportModalOpen(false)}
-                className="p-1 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                type="button"
+                onClick={() => {
+                  if (!isImporting) {
+                    setIsImportModalOpen(false);
+                    setSelectedFile(null);
+                    setParsedImportUsers([]);
+                    setImportProgress(0);
+                  }
+                }}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer disabled:opacity-30"
+                disabled={isImporting}
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="space-y-4">
               {importSuccessMsg ? (
-                <div className="p-8 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-center space-y-3 animate-in zoom-in-95 duration-200">
+                <div className="p-6 bg-emerald-50 rounded-2xl text-center space-y-2 border border-emerald-100 animate-in fade-in">
                   <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto text-emerald-600 shadow-sm">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
@@ -881,10 +896,9 @@ export default function AdminUserManagementPage() {
                   <div className="space-y-2">
                     <h4 className="font-bold text-base text-slate-800">Sedang Memproses Import Data...</h4>
                     <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                      Mendaftarkan {parsedImportUsers.length} akun pengguna ke Database Cloud. Mohon tidak menutup halaman ini.
+                      Mendaftarkan {parsedImportUsers.length} akun pengguna ke sistem. Mohon tidak menutup halaman ini.
                     </p>
                   </div>
-
                   {/* Animated Progress Bar */}
                   <div className="max-w-md mx-auto space-y-2">
                     <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden p-0.5 border border-slate-200">

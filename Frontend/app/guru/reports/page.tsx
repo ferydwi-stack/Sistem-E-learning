@@ -292,10 +292,10 @@ export default function GuruReportsPage() {
 
       setReportsData(updatedData);
       setEditingStudent(null);
-      setExportNotice(`Nilai UTS & UAS untuk ${editingStudent.name} berhasil disimpan ke database MySQL!`);
+      setExportNotice(`Nilai UTS & UAS untuk ${editingStudent.name} berhasil disimpan!`);
       setTimeout(() => setExportNotice(null), 4000);
     } catch (err: any) {
-      alert('Gagal menyimpan nilai ke database MySQL: ' + (err.message || 'Error'));
+      alert('Gagal menyimpan nilai: ' + (err.message || 'Error'));
     }
   };
 
