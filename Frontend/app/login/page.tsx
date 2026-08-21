@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { GraduationCap, ArrowRight, Mail, Lock, Eye, EyeOff, ShieldCheck, Loader2 } from 'lucide-react';
+import { GraduationCap, ArrowRight, Mail, Lock, Eye, EyeOff, ShieldCheck, Loader2, CheckCircle2 } from 'lucide-react';
 
 import TypewriterText from '@/components/TypewriterText';
 import { api } from '@/lib/api';
@@ -260,8 +260,11 @@ export default function LoginPage() {
             <p className="text-xs text-slate-500 font-medium mb-5">Masukkan email terdaftar untuk menerima tautan reset password.</p>
 
             {forgotMsg && (
-              <div className={`mb-4 p-3 rounded-xl text-xs font-semibold border ${forgotMsg.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-600'}`}>
-                {forgotMsg.text}
+              <div className={`mb-4 p-3.5 rounded-xl text-xs font-semibold border flex items-start gap-2.5 ${forgotMsg.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-600'}`}>
+                {forgotMsg.type === 'success' ? (
+                  <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+                ) : null}
+                <span>{forgotMsg.text}</span>
               </div>
             )}
 
@@ -271,11 +274,12 @@ export default function LoginPage() {
                 id="forgot-email"
                 type="email"
                 required
+                disabled={forgotLoading || forgotMsg?.type === 'success'}
                 placeholder="nama@EduSchool.sch.id"
                 value={forgotEmail}
                 onChange={(e) => setForgotEmail(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleForgotPassword(); }}
-                className="w-full px-4 py-3.5 bg-white border border-slate-300 rounded-2xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB] transition shadow-xs pl-10 font-medium"
+                onKeyDown={(e) => { if (e.key === 'Enter' && !forgotLoading && forgotMsg?.type !== 'success') handleForgotPassword(); }}
+                className="w-full px-4 py-3.5 bg-white border border-slate-300 rounded-2xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB] transition shadow-xs pl-10 font-medium disabled:bg-slate-100 disabled:text-slate-500"
               />
               <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" aria-hidden="true" />
             </div>
@@ -284,17 +288,27 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={closeForgotModal}
-                className="flex-1 py-3 border border-slate-300 text-slate-700 font-bold text-xs rounded-2xl hover:bg-slate-50 transition cursor-pointer"
+                disabled={forgotLoading}
+                className="flex-1 py-3 border border-slate-300 text-slate-700 font-bold text-xs rounded-2xl hover:bg-slate-50 transition cursor-pointer disabled:opacity-50"
               >
                 Batal
               </button>
               <button
                 type="button"
                 onClick={handleForgotPassword}
-                disabled={forgotLoading}
-                className="flex-1 py-3 bg-[#2563EB] hover:bg-blue-700 text-white font-bold text-xs rounded-2xl shadow-lg shadow-blue-500/25 transition disabled:opacity-50 cursor-pointer"
+                disabled={forgotLoading || forgotMsg?.type === 'success'}
+                className="flex-1 py-3 bg-[#2563EB] hover:bg-blue-700 text-white font-bold text-xs rounded-2xl shadow-lg shadow-blue-500/25 transition disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
               >
-                {forgotLoading ? 'Mengirim...' : 'Kirim Tautan Reset'}
+                {forgotLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Mengirim...</span>
+                  </>
+                ) : forgotMsg?.type === 'success' ? (
+                  <span>Terkirim ✓</span>
+                ) : (
+                  <span>Kirim Tautan Reset</span>
+                )}
               </button>
             </div>
           </div>
