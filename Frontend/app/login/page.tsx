@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { GraduationCap, ArrowRight, Mail, Lock, Eye, EyeOff, ShieldCheck, UserCheck, BookOpen } from 'lucide-react';
+import { GraduationCap, ArrowRight, Mail, Lock, Eye, EyeOff, ShieldCheck, Loader2 } from 'lucide-react';
 
 import TypewriterText from '@/components/TypewriterText';
 import { api } from '@/lib/api';
@@ -80,25 +80,6 @@ export default function LoginPage() {
       setErrorMsg(err.message || 'Login gagal. Periksa email dan password Anda.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleFillDemo = async (type: 'admin' | 'guru' | 'siswa') => {
-    const demoEmail = `${type}@lms.com`;
-    const demoPass = 'password';
-    setEmail(demoEmail);
-    setPassword(demoPass);
-
-    try {
-      const { api } = await import('@/lib/api');
-      const res = await api.login(demoEmail, demoPass);
-      if (res.user && typeof window !== 'undefined') {
-        clearPreviousUserCache();
-        localStorage.setItem('lms_user', JSON.stringify(res.user));
-      }
-      router.push(`/${res.user?.role || type}/dashboard`);
-    } catch (e: any) {
-      setErrorMsg(e.message || 'Gagal login demo. Pastikan server backend Anda berjalan.');
     }
   };
 
@@ -238,72 +219,22 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                className="w-full py-4 bg-[#2563EB] hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-2 mt-4 cursor-pointer"
+                disabled={loading}
+                className="w-full py-4 bg-[#2563EB] hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-2 mt-4 cursor-pointer disabled:cursor-not-allowed"
               >
-                <span>Login</span>
-                <ArrowRight className="w-4 h-4" />
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Memverifikasi...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Login</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
             </form>
-
-            {/* Akun Demo Card Box */}
-            <div className="mt-8 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-xs space-y-2">
-              <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-100">
-                <p className="font-bold text-slate-500 text-[11px] tracking-wide uppercase">Akun Demo Prototipe</p>
-                <span className="px-2 py-0.5 bg-blue-50 text-[#1D4ED8] font-bold text-[10px] rounded-md">1-Click Login</span>
-              </div>
-              
-              <button
-                type="button"
-                aria-label="Login sebagai Admin Demo"
-                onClick={() => handleFillDemo('admin')}
-                className="w-full text-left p-2.5 rounded-xl hover:bg-blue-50 transition flex items-center justify-between group border border-transparent hover:border-blue-100 cursor-pointer"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-blue-100 text-[#1D4ED8] flex items-center justify-center font-bold">
-                    <ShieldCheck className="w-4 h-4" />
-                  </div>
-                  <span className="text-slate-700 text-xs">
-                    <strong className="text-slate-900 font-bold">Admin</strong> — admin@lms.com
-                  </span>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 text-[#1D4ED8] opacity-0 group-hover:opacity-100 transition" />
-              </button>
-
-              <button
-                type="button"
-                aria-label="Login sebagai Guru Demo"
-                onClick={() => handleFillDemo('guru')}
-                className="w-full text-left p-2.5 rounded-xl hover:bg-blue-50 transition flex items-center justify-between group border border-transparent hover:border-blue-100 cursor-pointer"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
-                    <UserCheck className="w-4 h-4" />
-                  </div>
-                  <span className="text-slate-700 text-xs">
-                    <strong className="text-slate-900 font-bold">Guru</strong> — guru@lms.com
-                  </span>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 text-[#1D4ED8] opacity-0 group-hover:opacity-100 transition" />
-              </button>
-
-              <button
-                type="button"
-                aria-label="Login sebagai Siswa Demo"
-                onClick={() => handleFillDemo('siswa')}
-                className="w-full text-left p-2.5 rounded-xl hover:bg-emerald-50 transition flex items-center justify-between group border border-transparent hover:border-emerald-100 cursor-pointer"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                    <BookOpen className="w-4 h-4" />
-                  </div>
-                  <span className="text-slate-700 text-xs">
-                    <strong className="text-slate-900 font-bold">Siswa</strong> — siswa@lms.com
-                  </span>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 text-[#1D4ED8] opacity-0 group-hover:opacity-100 transition" />
-              </button>
-            </div>
-
           </div>
         </div>
 
