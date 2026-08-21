@@ -24,7 +24,7 @@ class ReportController extends Controller
         $assignments = $course->assignments()->with('submissions')->get();
         
         // Fetch course attendances
-        $attendances = $course->attendances()->get(['student_id', 'status']);
+        $attendances = $course->attendances()->get(['id', 'student_id', 'status', 'date']);
 
         // Load teacher relation
         $course->load('teacher:id,name,email');

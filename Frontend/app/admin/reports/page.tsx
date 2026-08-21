@@ -10,7 +10,7 @@ export default function AdminReportsPage() {
   const [range, setRange] = useState('minggu');
   const [downloadNotice, setDownloadNotice] = useState('');
   const [reportData, setReportData] = useState<any[]>([]);
-  const [overallStats, setOverallStats] = useState({ studentPercent: 0, teacherPercent: 100, effectiveDays: 22 });
+  const [overallStats, setOverallStats] = useState({ studentPercent: 0, totalSessions: 0, effectiveDays: 0 });
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -64,19 +64,26 @@ export default function AdminReportsPage() {
       ? Math.round((totalHadirAll / totalAttendanceAll) * 100)
       : 0;
 
+    let totalSessionsAll = 0;
     const allAttendanceDates = new Set<string>();
     reportResponses.forEach((res: any) => {
       const atts = Array.isArray(res?.attendances) ? res.attendances : [];
+      const courseSessions = new Set<string>();
       atts.forEach((a: any) => {
-        if (a.date) allAttendanceDates.add(String(a.date).substring(0, 10));
+        if (a.date) {
+          const d = String(a.date).substring(0, 10);
+          courseSessions.add(d);
+          allAttendanceDates.add(d);
+        }
       });
+      totalSessionsAll += courseSessions.size;
     });
     const effectiveDays = allAttendanceDates.size;
 
     setReportData(courseReports);
     setOverallStats({
       studentPercent,
-      teacherPercent: courseReports.length > 0 ? 100 : 0,
+      totalSessions: totalSessionsAll,
       effectiveDays: effectiveDays
     });
   } catch (e) {
@@ -170,7 +177,7 @@ return (
 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
   <div className="bg-[#10B981] rounded-[22px] p-6 shadow-none flex flex-col justify-between text-white">
     <div className="flex items-center justify-between mb-4">
-      <span className="text-xs font-bold uppercase opacity-90">Kehadiran Siswa</span>
+      <span className="text-xs font-bold uppercase opacity-90">Tingkat Kehadiran Siswa</span>
       <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
         <Users className="w-4 h-4 text-white" />
       </div>
@@ -181,13 +188,13 @@ return (
 
   <div className="bg-[#3B82F6] rounded-[22px] p-6 shadow-none flex flex-col justify-between text-white">
     <div className="flex items-center justify-between mb-4">
-      <span className="text-xs font-bold uppercase opacity-90">Kehadiran Staf Guru</span>
+      <span className="text-xs font-bold uppercase opacity-90">Total Pertemuan Presensi</span>
       <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-        <UserCheck className="w-4 h-4 text-white" />
+        <CheckCircle2 className="w-4 h-4 text-white" />
       </div>
     </div>
-    <p className="text-4xl font-extrabold tracking-tight mb-1" suppressHydrationWarning>{overallStats.teacherPercent}%</p>
-    <p className="text-xs font-medium opacity-90">Pengajar hadir sesuai jadwal</p>
+    <p className="text-4xl font-extrabold tracking-tight mb-1" suppressHydrationWarning>{overallStats.totalSessions} Sesi</p>
+    <p className="text-xs font-medium opacity-90">Sesi absensi terselenggara</p>
   </div>
 
   <div className="bg-[#8B5CF6] rounded-[22px] p-6 shadow-none flex flex-col justify-between text-white">
