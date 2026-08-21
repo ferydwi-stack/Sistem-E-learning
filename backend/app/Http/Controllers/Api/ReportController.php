@@ -26,8 +26,20 @@ class ReportController extends Controller
         // Fetch course attendances
         $attendances = $course->attendances()->get(['student_id', 'status']);
 
+        // Load teacher relation
+        $course->load('teacher:id,name,email');
+
         return response()->json([
-            'course' => $course->only(['id', 'title', 'code']),
+            'course' => [
+                'id' => $course->id,
+                'title' => $course->title,
+                'code' => $course->code,
+                'teacher' => $course->teacher ? [
+                    'id' => $course->teacher->id,
+                    'name' => $course->teacher->name,
+                    'email' => $course->teacher->email
+                ] : null
+            ],
             'students' => $students,
             'assignments' => $assignments,
             'attendances' => $attendances

@@ -25,12 +25,17 @@ export default function AdminReportsPage() {
     let totalAttendanceAll = 0;
 
     const courseReports = reportResponses
-      .map((res: any) => {
-        if (!res?.course) return null;
-        const course = res.course;
-        const students = Array.isArray(res.students) ? res.students : [];
-        const attendances = Array.isArray(res.attendances) ? res.attendances : [];
-        const total = students.length;
+      .map((res: any, idx: number) => {
+        const fallbackCourse = courses[idx];
+        const course = res?.course || fallbackCourse;
+        if (!course) return null;
+
+        const matchedCourse = courses.find((c: any) => Number(c.id) === Number(course.id)) || course;
+        const teacherName = course.teacher?.name || matchedCourse?.teacher?.name || 'Guru Pengampu';
+
+        const students = Array.isArray(res?.students) ? res.students : [];
+        const attendances = Array.isArray(res?.attendances) ? res.attendances : [];
+        const total = students.length || matchedCourse?.students_count || 0;
         const hadir = attendances.filter((a: any) => String(a.status).toLowerCase() === 'hadir').length;
         const izin = attendances.filter((a: any) => String(a.status).toLowerCase() === 'izin').length;
         const sakit = attendances.filter((a: any) => String(a.status).toLowerCase() === 'sakit').length;
@@ -44,7 +49,7 @@ export default function AdminReportsPage() {
 
         return {
           class: course.title,
-          teacher: course.teacher?.name || 'Guru',
+          teacher: teacherName,
           total,
           hadir,
           izin,
