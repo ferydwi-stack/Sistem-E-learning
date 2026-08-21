@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
 
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -31,11 +32,14 @@ export default function LoginPage() {
     setForgotLoading(true);
     try {
       const res = await api.forgotPassword(forgotEmail.trim());
-      setForgotMsg({ type: 'success', text: 'Tautan reset password telah dikirim ke email Anda. Silakan cek inbox atau folder Spam.' });
-      // Auto-close modal after 2.5 seconds on success
+      const msg = res.message || 'Tautan reset password telah dikirim ke email Anda.';
+      setForgotMsg({ type: 'success', text: `${msg} Menutup dalam 2 detik...` });
+      
+      // Auto-close modal after 2 seconds on success and show message on login page
       setTimeout(() => {
         closeForgotModal();
-      }, 2500);
+        setSuccessMsg('Tautan reset password telah dikirim ke email Anda. Silakan periksa kotak masuk atau spam.');
+      }, 2000);
     } catch (err: any) {
       setForgotMsg({ type: 'error', text: err.message || 'Gagal mengirim tautan reset. Periksa email Anda.' });
     } finally {
@@ -150,6 +154,11 @@ export default function LoginPage() {
               {errorMsg && (
                 <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl text-xs font-semibold text-red-600">
                   {errorMsg}
+                </div>
+              )}
+              {successMsg && (
+                <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-xl text-xs font-semibold text-green-700">
+                  {successMsg}
                 </div>
               )}
             </div>
