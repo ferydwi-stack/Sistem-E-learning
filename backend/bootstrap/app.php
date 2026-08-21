@@ -26,7 +26,12 @@ $app = Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->shouldRenderJsonWhen(function (\Illuminate\Http\Request $request, \Throwable $e) {
+            if ($request->is('api/*') || $request->is('api/v1/*') || $request->expectsJson()) {
+                return true;
+            }
+            return false;
+        });
     })->create();
 
 // Auto-configure writable storage path when running in Vercel Serverless environment
