@@ -63,20 +63,20 @@ export function useRealtimeData<T>(
   const cacheKey = customCacheKey || eventName || (deps.length > 0 ? `lms_${depsKey}` : null);
 
   // Initialize from cache if available for instant 0ms rendering
-  const cachedEntry = cacheKey ? memoryCache.get(cacheKey) : undefined;
+  const initialData = cacheKey ? memoryCache.get(cacheKey)?.data as T | undefined : undefined;
 
-  const [data, setData] = useState<T | null>(cachedEntry ? (cachedEntry.data as T) : null);
-  const [loading, setLoading] = useState<boolean>(!cachedEntry);
+  const [data, setData] = useState<T | null>(initialData ?? null);
+  const [loading, setLoading] = useState<boolean>(!initialData);
   const [error, setError] = useState<Error | null>(null);
   const fetchDataRef = useRef(fetchData);
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
     fetchDataRef.current = fetchData;
   }, [fetchData]);
 
   const load = useCallback(async (showLoading = false) => {
-    // Only show loading spinner if we don't have any cached data to display
-    if (showLoading && !data && !cachedEntry) {
+    if (showLoading && !hasFetchedRef.current) {
       setLoading(true);
     }
 
@@ -84,6 +84,7 @@ export function useRealtimeData<T>(
       const result = await fetchDataRef.current();
       setData(result);
       setError(null);
+      hasFetchedRef.current = true;
 
       // Update cache
       if (cacheKey && result !== null && result !== undefined) {
@@ -97,14 +98,13 @@ export function useRealtimeData<T>(
     } finally {
       setLoading(false);
     }
-  }, [cacheKey, data, cachedEntry]);
+  }, [cacheKey]);
 
   // Initial fetch on mount or deps change
   useEffect(() => {
-    // If we have cached data, revalidate in background without blocking UI
-    const hasCache = cacheKey && memoryCache.has(cacheKey);
-    void load(!hasCache);
-  }, [load, depsKey, cacheKey]);
+    hasFetchedRef.current = false;
+    void load(true);
+  }, [load, depsKey]);
 
   // Periodic background refresh
   useEffect(() => {
