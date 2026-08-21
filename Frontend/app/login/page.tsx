@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { GraduationCap, ArrowRight, Mail, Lock, Eye, EyeOff, ShieldCheck, Loader2, CheckCircle2 } from 'lucide-react';
 
@@ -22,9 +22,25 @@ export default function LoginPage() {
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotMsg, setForgotMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+
+  // Countdown timer effect: 3 -> 2 -> 1 -> close modal
+  useEffect(() => {
+    if (countdown === null) return;
+    if (countdown <= 0) {
+      closeForgotModal();
+      setSuccessMsg('Tautan reset password telah dikirim ke email Anda. Silakan periksa kotak masuk atau spam.');
+      return;
+    }
+    const timer = setTimeout(() => {
+      setCountdown(prev => (prev !== null ? prev - 1 : null));
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
 
   const handleForgotPassword = async () => {
     setForgotMsg(null);
+    setCountdown(null);
     if (!forgotEmail.trim()) {
       setForgotMsg({ type: 'error', text: 'Masukkan alamat email Anda.' });
       return;
@@ -33,13 +49,9 @@ export default function LoginPage() {
     try {
       const res = await api.forgotPassword(forgotEmail.trim());
       const msg = res.message || 'Tautan reset password telah dikirim ke email Anda.';
-      setForgotMsg({ type: 'success', text: `${msg} Menutup dalam 2 detik...` });
-      
-      // Auto-close modal after 2 seconds on success and show message on login page
-      setTimeout(() => {
-        closeForgotModal();
-        setSuccessMsg('Tautan reset password telah dikirim ke email Anda. Silakan periksa kotak masuk atau spam.');
-      }, 2000);
+      setForgotMsg({ type: 'success', text: msg });
+      // Start 3-second countdown
+      setCountdown(3);
     } catch (err: any) {
       setForgotMsg({ type: 'error', text: err.message || 'Gagal mengirim tautan reset. Periksa email Anda.' });
     } finally {
@@ -52,6 +64,7 @@ export default function LoginPage() {
     setForgotEmail('');
     setForgotMsg(null);
     setForgotLoading(false);
+    setCountdown(null);
   };
 
   // Helper: clear previous user's cached profile data on new login
@@ -264,7 +277,17 @@ export default function LoginPage() {
                 {forgotMsg.type === 'success' ? (
                   <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
                 ) : null}
-                <span>{forgotMsg.text}</span>
+                <div className="flex-1">
+                  <div>{forgotMsg.text}</div>
+                  {countdown !== null && (
+                    <div className="mt-2 pt-2 border-t border-green-200/60 flex items-center justify-between text-[11px] font-bold text-green-800">
+                      <span>Otomatis menutup popup dalam:</span>
+                      <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-green-200/80 text-green-900 font-extrabold text-xs">
+                        {countdown} detik
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -304,6 +327,8 @@ export default function LoginPage() {
                     <Loader2 className="w-4 h-4 animate-spin" />
                     <span>Mengirim...</span>
                   </>
+                ) : countdown !== null ? (
+                  <span>Terkirim ({countdown}s)</span>
                 ) : forgotMsg?.type === 'success' ? (
                   <span>Terkirim ✓</span>
                 ) : (
