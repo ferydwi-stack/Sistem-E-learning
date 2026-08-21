@@ -283,16 +283,17 @@ export default function DashboardLayout({ role, title, subtitle, children }: Das
 
           {/* Top Right User Profile Info */}
           <div className="flex items-center gap-3">
-            {role !== 'admin' && (
+            {(role === 'guru' || role === 'siswa') && (
               <div className="relative">
                 <button
+                  type="button"
                   onClick={handleToggleNotifications}
-                  className="p-2 text-[#10B981] hover:bg-[#ECFDF5] rounded-xl relative cursor-pointer"
+                  className="p-2.5 text-slate-600 hover:text-[#2563EB] hover:bg-blue-50 rounded-xl border border-slate-200 relative cursor-pointer transition shadow-2xs"
                   title="Notifikasi"
                 >
                   <Bell className="w-5 h-5" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#10B981] text-white text-[10px] flex items-center justify-center border-2 border-white">
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white shadow-xs">
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                   )}
