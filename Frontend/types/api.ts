@@ -127,4 +127,10 @@ export interface StatsResponse {
   total_students?: number;
   pending_assignments?: number;
   courses?: Course[];
+  // Admin stats fields
+  total_users?: number;
+  total_teachers?: number;
+  total_courses?: number;
+  total_assignments?: number;
+  submissions_today?: number;
 }

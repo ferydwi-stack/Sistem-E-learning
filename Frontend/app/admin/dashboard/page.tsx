@@ -32,9 +32,9 @@ export default function AdminDashboardPage() {
 
       if (statsData && statsData.total_users !== undefined) {
         setCounts({
-          totalUsers: statsData.total_users,
-          teachers: statsData.total_teachers,
-          students: statsData.total_students,
+          totalUsers: statsData.total_users || 0,
+          teachers: statsData.total_teachers || 0,
+          students: statsData.total_students || 0,
           courses: statsData.total_courses || (Array.isArray(coursesList) ? coursesList.length : 0)
         });
       } else if (Array.isArray(usersList) && usersList.length > 0) {
