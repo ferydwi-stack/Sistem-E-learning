@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
-import { Users, Search, X, Eye, Copy, CheckCircle2 } from 'lucide-react';
+import { Users, Search, X, Eye, Copy, CheckCircle2, BookOpen, FileText } from 'lucide-react';
 import { useRealtimeData } from '@/hooks/useRealtimeData';
 import { api } from '@/lib/api';
 
@@ -142,19 +142,20 @@ export default function AdminCoursesPage() {
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-              <span className="px-3 py-1 bg-[#EEF2FF] text-[#2563EB] font-bold rounded-md font-mono text-xs border border-[#2563EB]/20">
-                {course.code}
-              </span>
-          <div className="w-8 h-8 rounded-full bg-[#0F172E] text-white flex items-center justify-center font-bold text-xs">
-            {course.code.split('')[0]}
-          </div>
+                <span className="px-3 py-1 bg-[#EEF2FF] text-[#2563EB] font-bold rounded-md font-mono text-xs border border-[#2563EB]/20">
+                  {course.code}
+                </span>
+                <div className="w-8 h-8 rounded-full bg-[#0F172E] text-white flex items-center justify-center font-bold text-xs">
+                  {course.code.split('')[0]}
+                </div>
               </div>
 
               <h3 className="text-base font-bold text-slate-900 leading-snug mb-1">{course.title}</h3>
-              <p className="text-xs text-slate-400 font-medium mb-2">
-                Pengajar: <strong className="text-slate-700">{course.teacher}</strong>
+              <p className="text-xs text-slate-500 font-medium mb-3">
+                Pengajar: <strong className="text-slate-800">{course.teacher}</strong>
               </p>
-              <div className="mt-4 rounded-2xl bg-white border border-slate-200 px-3 py-2.5 flex items-center justify-between gap-3">
+              
+              <div className="mt-4 rounded-2xl bg-white border border-slate-200 px-3.5 py-2.5 flex items-center justify-between gap-3 shadow-2xs">
                 <span className="text-[10px] text-slate-400 font-bold uppercase">
                   Kode Akses Siswa<br />
                   <strong className="text-xs text-[#0F172E] font-mono normal-case">{course.joinCode}</strong>
@@ -162,7 +163,7 @@ export default function AdminCoursesPage() {
                 <button
                   type="button"
                   onClick={() => handleCopyJoinCode(course.joinCode)}
-                  className="px-3 py-1.5 bg-[#2563EB] hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center gap-1 transition cursor-pointer active:scale-95 shadow-sm"
+                  className="px-3 py-1.5 bg-[#2563EB] hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center gap-1 transition cursor-pointer active:scale-95 shadow-xs"
                 >
                   <Copy className="w-3.5 h-3.5" />
                   <span>Salin</span>
@@ -170,24 +171,31 @@ export default function AdminCoursesPage() {
               </div>
             </div>
 
-            {/* Clickable Total Siswa Pill */}
-            <div className="pt-4 border-t border-slate-100 space-y-3">
-              <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-                <button
-                  onClick={() => setSelectedCourse(course)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-xl transition cursor-pointer"
-                >
-                  <Users className="w-4 h-4 text-white" />
-                  <span>{course.studentsList ? course.studentsList.length : course.studentsCount} Siswa Terdaftar</span>
-                  <Eye className="w-3.5 h-3.5 ml-1" />
-                </button>
-
-                <div className="flex items-center gap-3 text-slate-400 font-medium">
+            {/* Footer with clean 2-row layout to prevent overlapping */}
+            <div className="pt-4 mt-4 border-t border-slate-200/80 space-y-3">
+              {/* Row 1: Content Info (Materi & Tugas) */}
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-600 bg-white/70 px-3.5 py-2 rounded-xl border border-slate-200/60">
+                <div className="flex items-center gap-1.5 text-slate-700">
+                  <BookOpen className="w-3.5 h-3.5 text-[#2563EB]" />
                   <span>{course.materi} Materi</span>
-                  <span>•</span>
+                </div>
+                <span className="text-slate-300">•</span>
+                <div className="flex items-center gap-1.5 text-slate-700">
+                  <FileText className="w-3.5 h-3.5 text-indigo-500" />
                   <span>{course.tugas} Tugas</span>
                 </div>
               </div>
+
+              {/* Row 2: Siswa Terdaftar Action Button */}
+              <button
+                type="button"
+                onClick={() => setSelectedCourse(course)}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#2563EB] hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition active:scale-[0.99] cursor-pointer"
+              >
+                <Users className="w-4 h-4" />
+                <span>{course.studentsList ? course.studentsList.length : course.studentsCount} Siswa Terdaftar</span>
+                <Eye className="w-3.5 h-3.5 opacity-80" />
+              </button>
             </div>
           </div>
         ))}
