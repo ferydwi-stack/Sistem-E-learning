@@ -283,74 +283,77 @@ export default function DashboardLayout({ role, title, subtitle, children }: Das
 
           {/* Top Right User Profile Info */}
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <button
-                onClick={handleToggleNotifications}
-                className="p-2 text-[#10B981] hover:bg-[#ECFDF5] rounded-xl relative"
-              >
-                <Bell className="w-5 h-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#10B981] text-white text-[10px] flex items-center justify-center border-2 border-white">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-              </button>
-              
-              {/* Notifications Dropdown */}
-              {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 animate-in fade-in zoom-in-95 duration-200">
-                  <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-                    <h3 className="text-xs font-bold text-slate-900">Notifikasi</h3>
-                    <button
-                      onClick={() => setShowNotifications(false)}
-                      className="p-1 text-slate-400 hover:text-slate-600"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div className="max-h-80 overflow-y-auto">
-                    {notifications.length === 0 ? (
-                      <div className="p-8 text-center">
-                        <div className="w-10 h-10 mx-auto bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-2">
-                          <Bell className="w-5 h-5" />
-                        </div>
-                        <p className="text-xs text-slate-500">Tidak ada notifikasi baru</p>
-                      </div>
-                    ) : (
-                      <div className="divide-y divide-slate-50">
-                        {notifications.slice(0, 10).map((notif: any) => (
-                          <div 
-                            key={notif.id} 
-                            className={`p-3 hover:bg-slate-50 transition cursor-pointer ${!notif.read_at ? 'bg-blue-50/30' : ''}`}
-                            onClick={() => handleMarkAsRead(notif.id)}
-                          >
-                            <div className="flex items-start gap-2.5">
-                              <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
-                                <Bell className="w-4 h-4" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs text-slate-800 leading-relaxed">{notif.message}</p>
-                                <p className="text-[10px] text-slate-400 mt-1">
-                                  {new Date(notif.created_at || notif.time).toLocaleString('id-ID', { 
-                                    hour: '2-digit', 
-                                    minute: '2-digit',
-                                    day: 'numeric',
-                                    month: 'short'
-                                  })}
-                                </p>
-                              </div>
-                              {!notif.read_at && (
-                                <div className="w-2 h-2 rounded-full bg-blue-600 flex-shrink-0 mt-1" />
-                              )}
-                            </div>
+            {role !== 'admin' && (
+              <div className="relative">
+                <button
+                  onClick={handleToggleNotifications}
+                  className="p-2 text-[#10B981] hover:bg-[#ECFDF5] rounded-xl relative cursor-pointer"
+                  title="Notifikasi"
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#10B981] text-white text-[10px] flex items-center justify-center border-2 border-white">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+                
+                {/* Notifications Dropdown */}
+                {showNotifications && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                      <h3 className="text-xs font-bold text-slate-900">Notifikasi</h3>
+                      <button
+                        onClick={() => setShowNotifications(false)}
+                        className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="max-h-80 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="p-8 text-center">
+                          <div className="w-10 h-10 mx-auto bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-2">
+                            <Bell className="w-5 h-5" />
                           </div>
-                        ))}
-                      </div>
-                    )}
+                          <p className="text-xs text-slate-500">Tidak ada notifikasi baru</p>
+                        </div>
+                      ) : (
+                        <div className="divide-y divide-slate-50">
+                          {notifications.slice(0, 10).map((notif: any) => (
+                            <div 
+                              key={notif.id} 
+                              className={`p-3 hover:bg-slate-50 transition cursor-pointer ${!notif.read_at ? 'bg-blue-50/30' : ''}`}
+                              onClick={() => handleMarkAsRead(notif.id)}
+                            >
+                              <div className="flex items-start gap-2.5">
+                                <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+                                  <Bell className="w-4 h-4" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs text-slate-800 leading-relaxed">{notif.message}</p>
+                                  <p className="text-[10px] text-slate-400 mt-1">
+                                    {new Date(notif.created_at || notif.time).toLocaleString('id-ID', { 
+                                      hour: '2-digit', 
+                                      minute: '2-digit',
+                                      day: 'numeric',
+                                      month: 'short'
+                                    })}
+                                  </p>
+                                </div>
+                                {!notif.read_at && (
+                                  <div className="w-2 h-2 rounded-full bg-blue-600 flex-shrink-0 mt-1" />
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             <div className="relative">
               <button
