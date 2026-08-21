@@ -3,14 +3,14 @@
 import React, { useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import Link from 'next/link';
-import { GraduationCap, Users, BookOpen, FileCheck2, Search, Plus, LogOut, CheckCircle2, Key, X } from 'lucide-react';
+import { GraduationCap, Users, BookOpen, FileCheck2, Search, Plus, LogOut, CheckCircle2, AlertCircle, Key, X } from 'lucide-react';
 import { useLms } from '@/context/LmsContext';
 
 export default function SiswaCoursesPage() {
   const { enrolledCourses, availableCourses, myCourseIds, refreshCourses, joinCourseByCode, joinCourseById, leaveCourseById } = useLms();
   const [search, setSearch] = useState('');
   const [tabFilter, setTabFilter] = useState<'my' | 'all'>('my');
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [inputJoinCode, setInputJoinCode] = useState('');
 
@@ -27,13 +27,16 @@ export default function SiswaCoursesPage() {
 
   const handleJoinCourse = async (courseId: string) => {
     const result = await joinCourseById(courseId);
-    setNotice(result.message);
+    setNotice({
+      type: result.success ? 'success' : 'error',
+      message: result.message
+    });
 
     if (result.success) {
       setTabFilter('my');
     }
 
-    setTimeout(() => setNotice(null), 3000);
+    setTimeout(() => setNotice(null), 3500);
   };
 
   const handleJoinByCode = async (e: React.FormEvent) => {
@@ -41,17 +44,24 @@ export default function SiswaCoursesPage() {
     if (!inputJoinCode.trim()) return;
 
     const res = await joinCourseByCode(inputJoinCode.replace(/-JOIN$/i, ''));
-    setNotice(res.message);
+    setNotice({
+      type: res.success ? 'success' : 'error',
+      message: res.message
+    });
     if (res.success) {
       setIsJoinModalOpen(false);
       setInputJoinCode('');
+      setTabFilter('my');
     }
     setTimeout(() => setNotice(null), 4000);
   };
 
   const handleLeaveCourse = (courseId: string, title: string) => {
     leaveCourseById(courseId);
-    setNotice(`Anda telah keluar dari kelas "${title}".`);
+    setNotice({
+      type: 'success',
+      message: `Anda telah keluar dari kelas "${title}".`
+    });
     setTimeout(() => setNotice(null), 3000);
   };
 
@@ -70,9 +80,19 @@ export default function SiswaCoursesPage() {
     >
       {/* Top Notice Toast */}
       {notice && (
-        <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold rounded-2xl flex items-center gap-2 shadow-xs animate-in fade-in">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-          <span>{notice}</span>
+        <div
+          className={`mb-6 p-4 text-xs font-bold rounded-2xl flex items-center gap-2.5 shadow-xs animate-in fade-in ${
+            notice.type === 'success'
+              ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+              : 'bg-rose-50 border border-rose-200 text-rose-800'
+          }`}
+        >
+          {notice.type === 'success' ? (
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+          ) : (
+            <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+          )}
+          <span>{notice.message}</span>
         </div>
       )}
 

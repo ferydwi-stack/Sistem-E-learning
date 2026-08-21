@@ -70,12 +70,14 @@ class CourseService
                 $course->students()->attach($student->id, ['status' => 'active']);
             }
 
-            app(NotificationService::class)->notifyTeacherOfEnrollment(
-                $course->teacher,
-                $student->name,
-                $course->title,
-                $course->id
-            );
+            if ($course->teacher) {
+                app(NotificationService::class)->notifyTeacherOfEnrollment(
+                    $course->teacher,
+                    $student->name,
+                    $course->title,
+                    $course->id
+                );
+            }
         });
     }
 

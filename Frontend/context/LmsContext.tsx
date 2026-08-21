@@ -169,13 +169,26 @@ export function LmsProvider({ children }: { children: React.ReactNode }) {
       return { success: false, message: 'Anda sudah terdaftar di kelas ini.' };
     }
 
+    const targetCourse = availableCourses.find(c => String(c.id) === String(id));
+    const prevEnrolled = [...enrolledCourses];
+    const prevMyIds = [...myCourseIds];
+
+    // Optimistic Update: Instantly add to joined classes in UI (0ms response)
+    if (targetCourse) {
+      setEnrolledCourses(prev => [{ ...targetCourse, isJoined: true }, ...prev.filter(c => c.id !== id)]);
+    }
+    setMyCourseIds(prev => [...new Set([...prev, id])]);
+
     try {
       setMutatingCourseId(id);
       await api.enrollCourse(Number(id));
-      await refreshCourses();
       notifyDataChanged('lms_courses_updated');
+      void refreshCourses();
       return { success: true, message: 'Berhasil bergabung ke kelas!' };
     } catch (error: any) {
+      // Rollback if server fails
+      setEnrolledCourses(prevEnrolled);
+      setMyCourseIds(prevMyIds);
       return { success: false, message: error.message || 'Gagal bergabung ke kelas.' };
     } finally {
       setMutatingCourseId(null);
@@ -183,12 +196,22 @@ export function LmsProvider({ children }: { children: React.ReactNode }) {
   };
 
   const leaveCourseById = async (id: string) => {
+    const prevEnrolled = [...enrolledCourses];
+    const prevMyIds = [...myCourseIds];
+
+    // Optimistic Update: Instantly remove from UI
+    setEnrolledCourses(prev => prev.filter(c => String(c.id) !== String(id)));
+    setMyCourseIds(prev => prev.filter(cId => String(cId) !== String(id)));
+
     try {
       setMutatingCourseId(id);
       await api.leaveCourse(Number(id));
-      await refreshCourses();
       notifyDataChanged('lms_courses_updated');
+      void refreshCourses();
     } catch (error) {
+      // Rollback if server fails
+      setEnrolledCourses(prevEnrolled);
+      setMyCourseIds(prevMyIds);
       console.error('Failed to leave course:', error);
       throw error;
     } finally {
@@ -200,13 +223,19 @@ export function LmsProvider({ children }: { children: React.ReactNode }) {
     const cleanCode = codeInput.trim().toUpperCase().replace(/-JOIN$/i, '');
     
     try {
+      setMutatingCourseId(cleanCode);
       const result = await api.enrollByCode(cleanCode);
-      await refreshCourses();
+      const enrolled = (result as any).course ? mapApiCourseToLocal((result as any).course) : undefined;
+      if (enrolled) {
+        setEnrolledCourses(prev => [enrolled, ...prev.filter(c => c.id !== enrolled.id)]);
+        setMyCourseIds(prev => [...new Set([...prev, enrolled.id])]);
+      }
       notifyDataChanged('lms_courses_updated');
+      void refreshCourses();
       
       return { 
         success: true, 
-        course: (result as any).course ? mapApiCourseToLocal((result as any).course) : undefined, 
+        course: enrolled, 
         message: `Berhasil bergabung ke kelas dengan kode ${cleanCode}!` 
       };
     } catch (error: any) {
@@ -214,6 +243,8 @@ export function LmsProvider({ children }: { children: React.ReactNode }) {
         success: false, 
         message: error.message || `Kode Akses "${cleanCode}" tidak ditemukan atau gagal bergabung!` 
       };
+    } finally {
+      setMutatingCourseId(null);
     }
   };
 
