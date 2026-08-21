@@ -71,10 +71,15 @@ export default function LoginPage() {
   const clearPreviousUserCache = () => {
     if (typeof window !== 'undefined') {
       try {
+        // Clear in-memory SWR caches
+        const { clearAllLmsCaches } = require('@/hooks/useRealtimeData');
+        if (clearAllLmsCaches) clearAllLmsCaches();
+      } catch (e) {}
+      try {
         // Remove the global standalone key
         localStorage.removeItem('lms_teacher_profile_data');
         // Remove all per-user profile keys
-        const keys = Object.keys(localStorage).filter(k => k.startsWith('lms_teacher_profile_'));
+        const keys = Object.keys(localStorage).filter(k => k.startsWith('lms_'));
         keys.forEach(k => localStorage.removeItem(k));
       } catch (e) {}
     }
