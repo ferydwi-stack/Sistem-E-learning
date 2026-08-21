@@ -31,7 +31,11 @@ export default function LoginPage() {
     setForgotLoading(true);
     try {
       const res = await api.forgotPassword(forgotEmail.trim());
-      setForgotMsg({ type: 'success', text: res.message || 'Tautan reset password telah dikirim ke email Anda.' });
+      setForgotMsg({ type: 'success', text: 'Tautan reset password telah dikirim ke email Anda. Silakan cek inbox atau folder Spam.' });
+      // Auto-close modal after 2.5 seconds on success
+      setTimeout(() => {
+        closeForgotModal();
+      }, 2500);
     } catch (err: any) {
       setForgotMsg({ type: 'error', text: err.message || 'Gagal mengirim tautan reset. Periksa email Anda.' });
     } finally {
