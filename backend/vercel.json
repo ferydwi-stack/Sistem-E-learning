@@ -25,6 +25,15 @@
     "VIEW_COMPILED_PATH": "/tmp",
     "CACHE_STORE": "array",
     "SESSION_DRIVER": "cookie",
-    "LOG_CHANNEL": "stderr"
+    "LOG_CHANNEL": "stderr",
+    "MAIL_MAILER": "smtp",
+    "MAIL_HOST": "smtp.gmail.com",
+    "MAIL_PORT": "587",
+    "MAIL_USERNAME": "panduwuranata@gmail.com",
+    "MAIL_PASSWORD": "vuyq inlc txxv mbwm",
+    "MAIL_ENCRYPTION": "tls",
+    "MAIL_FROM_ADDRESS": "panduwuranata@gmail.com",
+    "MAIL_FROM_NAME": "EduSchool LMS",
+    "FRONTEND_URL": "https://sistem-e-learning.vercel.app"
   }
 }

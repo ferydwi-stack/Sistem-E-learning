@@ -19,7 +19,7 @@ export function useAuth(): AuthState {
         try {
           const parsed = JSON.parse(cached);
           return parsed?.user || parsed?.data || parsed;
-        } catch {}
+        } catch { }
       }
     }
     return null;
@@ -76,7 +76,7 @@ export function useAuth(): AuthState {
       if (typeof window !== 'undefined') {
         const cached = localStorage.getItem('lms_user');
         if (cached) {
-          try { setUser(JSON.parse(cached)); } catch {}
+          try { setUser(JSON.parse(cached)); } catch { }
         }
       }
     };

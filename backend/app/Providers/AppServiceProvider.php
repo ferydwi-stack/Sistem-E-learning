@@ -26,7 +26,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         ResetPassword::createUrlUsing(function ($user, string $token) {
-            return env('FRONTEND_URL', 'http://localhost:3000') . '/reset-password?email=' . urlencode($user->email) . '&token=' . $token;
+            $frontend = rtrim(env('FRONTEND_URL', 'https://sistem-e-learning.vercel.app'), '/');
+            return $frontend . '/reset-password?email=' . urlencode($user->email) . '&token=' . $token;
         });
 
         Event::listen(
